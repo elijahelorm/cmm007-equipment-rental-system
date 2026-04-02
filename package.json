@@ -1,0 +1,28 @@
+{
+  "name": "cmm007-equipment-rental-system",
+  "version": "1.0.0",
+  "description": "A web-based equipment rental management system developed for CMM007 Intranet Systems Development. Features role-based access, inventory CRUD, and rental logic using MySQL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/elijahelorm/cmm007-equipment-rental-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elijahelorm/cmm007-equipment-rental-system/issues"
+  },
+  "homepage": "https://github.com/elijahelorm/cmm007-equipment-rental-system#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.0",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.20.0"
+  }
+}
