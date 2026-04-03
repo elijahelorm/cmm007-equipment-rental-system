@@ -1,14 +1,12 @@
 // ============================================
-// script.js - CLIENT-SIDE JAVASCRIPT
-// This file runs in the browser
+// script.js - Main JavaScript for all pages
 // ============================================
 
-// Wait for the DOM to load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Equipment Rental System loaded');
     
     // Auto-hide alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert');
+    const alerts = document.querySelectorAll('.alert, .login-alert');
     alerts.forEach(alert => {
         setTimeout(() => {
             alert.style.opacity = '0';
@@ -28,6 +26,18 @@ function confirmAction(message) {
 
 // Utility function to format date
 function formatDate(dateString) {
+    if (!dateString) return 'N/A';
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+// Utility function to show loading state
+function showLoading(button) {
+    const originalText = button.textContent;
+    button.textContent = 'Loading...';
+    button.disabled = true;
+    return function() {
+        button.textContent = originalText;
+        button.disabled = false;
+    };
 }

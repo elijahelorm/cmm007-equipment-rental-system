@@ -1,83 +1,81 @@
-<!-- 
-    CSS is loaded from /css/style.css
--->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title><%= title %> | Equipment Rental System</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/login.css">
+
 </head>
-<body>
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
+<body class="login-page-body">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-card-header">
                 <h1>🔧 Equipment Rental</h1>
                 <p>Management System</p>
             </div>
             
-            <div class="card-body">
+            <div class="login-card-body">
                 <!-- Display error message if exists -->
                 <% if (error) { %>
-                    <div class="alert alert-error">
+                    <div class="login-alert login-alert-error">
                         ⚠️ <%= error %>
                     </div>
                 <% } %>
                 
                 <!-- Display success message if exists -->
                 <% if (message) { %>
-                    <div class="alert alert-success">
+                    <div class="login-alert login-alert-success">
                         ✅ <%= message %>
                     </div>
                 <% } %>
                 
                 <!-- Login Form -->
                 <form action="/auth/login" method="POST">
-                    <div class="form-group">
+                    <div class="login-form-group">
                         <label>Email Address</label>
-                        <input type="email" name="email" required placeholder="admin@example.com">
+                        <input type="email" name="email" required placeholder="admin@example.com" autocomplete="email">
                     </div>
                     
-                    <div class="form-group">
+                    <div class="login-form-group">
                         <label>Password</label>
-                        <input type="password" name="password" required placeholder="••••••">
+                        <input type="password" name="password" required placeholder="••••••" autocomplete="current-password">
                     </div>
                     
-                    <div class="form-group">
-                        <label> Login as</label>
+                    <div class="login-form-group">
+                        <label>Login as</label>
                         <select name="role" required>
-                            <option value="user"> Regular User</option>
-                            <option value="admin"> Administrator</option>
+                            <option value="user">User</option>
+                            <option value="admin">Administrator</option>
                         </select>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Login →</button>
+                    <button type="submit" class="login-btn">Login →</button>
                 </form>
                 
-                <div class="divider">
+                <div class="login-divider">
                     <span>Don't have an account? </span>
-                    <a href="#" onclick="showRegisterModal()" class="link">Register here</a>
+                    <a href="#" onclick="showRegisterModal()" class="login-link">Register here</a>
                 </div>
                 
-                <div class="demo-info">
+                <div class="login-demo-info">
                     <h4>📌 Demo Credentials</h4>
                     <p><strong>Admin:</strong> admin@example.com / Admin@123</p>
-                    <p><strong>User:</strong> Register a new account</p>
+                    <p><strong>User:</strong> Register a new account above</p>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Registration Modal -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3> Create New Account</h3>
+    <div id="registerModal" class="login-modal">
+        <div class="login-modal-content">
+            <div class="login-modal-header">
+                <h3>Create New Account</h3>
             </div>
-            <div class="modal-body">
-                <form action="/auth/register" method="POST">
+            <div class="login-modal-body">
+                <form action="/auth/register" method="POST" id="registerForm">
                     <div class="form-group">
                         <label>Full Name</label>
                         <input type="text" name="fullName" required placeholder="John Doe">
@@ -91,30 +89,18 @@
                     <div class="form-group">
                         <label>Password</label>
                         <input type="password" name="password" required placeholder="Minimum 6 characters">
+                        <span class="input-hint">Password must be at least 6 characters</span>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Register →</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeRegisterModal()" style="margin-top: 10px;">Cancel</button>
+                    <div class="login-modal-buttons">
+                        <button type="submit" class="login-btn">Register →</button>
+                        <button type="button" class="login-btn" onclick="closeRegisterModal()" style="background: #6c757d;">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
     
-    <script>
-        function showRegisterModal() {
-            document.getElementById('registerModal').style.display = 'flex';
-        }
-        
-        function closeRegisterModal() {
-            document.getElementById('registerModal').style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('registerModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-    </script>
+    <script src="/js/login.js"></script>
 </body>
 </html>
