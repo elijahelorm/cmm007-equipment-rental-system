@@ -1,18 +1,67 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>User Dashboard</title>
-    <style>
-        body { font-family: Arial; text-align: center; padding: 50px; }
-        .success { background: #2196F3; color: white; padding: 20px; border-radius: 10px; }
-    </style>
-</head>
-<body>
-    <div class="success">
-        <h1>✅ User Dashboard</h1>
-        <p>Welcome, <%= user.full_name %>!</p>
-        <p>User dashboard coming soon in Step 5!</p>
-        <a href="/logout">Logout</a>
-    </div>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="has-navbar">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <a href="/user/dashboard" class="navbar-brand"> 🔧 Equipment Rental </a>
+      <div class="navbar-menu">
+        <span>Welcome, <%= user.full_name %>!</span>
+        <a href="/user/dashboard">Dashboard</a>
+        <a href="/user/my-rentals">My Rentals</a>
+        <a
+          href="/logout"
+          style="
+            background: #dc3545;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: white;
+          "
+          >Logout</a
+        >
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px">
+      <div class="card">
+        <div class="card-header">
+          <h1>✅ User Dashboard</h1>
+          <p>Rent and manage equipment</p>
+        </div>
+        <div class="card-body">
+          <h2>Welcome, <%= user.full_name %>!</h2>
+          <p>Email: <%= user.email %></p>
+          <p>Role: Regular User</p>
+          <hr style="margin: 20px 0" />
+
+          <div class="row">
+            <div class="col">
+              <div class="stat-card">
+                <h3>🔍</h3>
+                <p>Search & Rent Equipment - Coming Soon</p>
+              </div>
+            </div>
+            <div class="col">
+              <div class="stat-card">
+                <h3>📋</h3>
+                <p>My Rental History - Coming Soon</p>
+              </div>
+            </div>
+          </div>
+
+          <p style="margin-top: 20px">
+            📌 Equipment rental features coming in Step 5!
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+  </body>
 </html>

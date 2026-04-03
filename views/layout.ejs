@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Equipment Rental System</title>
+    
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Optional page-specific CSS can be added here -->
+    <% if (typeof pageStyles !== 'undefined') { %>
+        <style><%= pageStyles %></style>
+    <% } %>
+</head>
+<body class="<%= bodyClass || '' %>">
+    <!-- Navigation Bar (shows only when user is logged in) -->
+    <% if (user) { %>
+    <nav class="navbar">
+        <a href="/<%= user.role %>/dashboard" class="navbar-brand">
+            🔧 Equipment Rental
+        </a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <% if (user.role === 'admin') { %>
+                <a href="/admin/dashboard">Dashboard</a>
+                <a href="/admin/equipment">Equipment</a>
+                <a href="/admin/users">Users</a>
+            <% } else { %>
+                <a href="/user/dashboard">Dashboard</a>
+                <a href="/user/my-rentals">My Rentals</a>
+            <% } %>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
+        </div>
+    </nav>
+    <% } %>
+    
+    <!-- Main content area -->
+    <main>
+        <!-- Alert messages if they exist -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        
+        <!-- Page-specific content goes here -->
+        <%- body %>
+    </main>
+    
+    <!-- Link to external JavaScript file -->
+    <script src="/js/script.js"></script>
+    
+    <!-- Optional page-specific JavaScript -->
+    <% if (typeof pageScripts !== 'undefined') { %>
+        <script><%= pageScripts %></script>
+    <% } %>
+</body>
+</html>

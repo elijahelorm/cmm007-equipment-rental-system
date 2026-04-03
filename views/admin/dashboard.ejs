@@ -1,18 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Dashboard</title>
-    <style>
-        body { font-family: Arial; text-align: center; padding: 50px; }
-        .success { background: #4CAF50; color: white; padding: 20px; border-radius: 10px; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
-    <div class="success">
-        <h1>✅ Admin Dashboard</h1>
-        <p>Welcome, <%= user.full_name %>!</p>
-        <p>Admin dashboard coming soon in Step 4!</p>
-        <a href="/logout">Logout</a>
-    </div>
+<body class="has-navbar">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">
+            🔧 Equipment Rental
+        </a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/equipment">Equipment</a>
+            <a href="/admin/users">Users</a>
+            <a href="/logout" style="background: #dc3545; padding: 8px 16px; border-radius: 8px; color: white;">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px;">
+        <div class="card">
+            <div class="card-header">
+                <h1>✅ Admin Dashboard</h1>
+                <p>Welcome to the Equipment Rental System</p>
+            </div>
+            <div class="card-body">
+                <h2>Welcome, <%= user.full_name %>!</h2>
+                <p>Email: <%= user.email %></p>
+                <p>Role: Administrator</p>
+                <hr style="margin: 20px 0;">
+                
+                <div class="row">
+                    <div class="col">
+                        <div class="stat-card">
+                            <h3>📦</h3>
+                            <p>Equipment Management - Coming Soon</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="stat-card">
+                            <h3>👥</h3>
+                            <p>User Management - Coming Soon</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 20px;">📌 Full admin features (Equipment & User Management) coming in Step 4!</p>
+            </div>
+        </div>
+    </main>
+    
+    <script src="/js/script.js"></script>
 </body>
 </html>
