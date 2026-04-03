@@ -1,67 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Dashboard | Equipment Rental</title>
-    <link rel="stylesheet" href="/css/style.css" />
-  </head>
-  <body class="has-navbar">
-    <!-- Navigation Bar -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    
+</head>
+<body class="has-navbar">
     <nav class="navbar">
-      <a href="/user/dashboard" class="navbar-brand"> 🔧 Equipment Rental </a>
-      <div class="navbar-menu">
-        <span>Welcome, <%= user.full_name %>!</span>
-        <a href="/user/dashboard">Dashboard</a>
-        <a href="/user/my-rentals">My Rentals</a>
-        <a
-          href="/logout"
-          style="
-            background: #dc3545;
-            padding: 8px 16px;
-            border-radius: 8px;
-            color: white;
-          "
-          >Logout</a
-        >
-      </div>
+        <a href="/user/dashboard" class="navbar-brand">🔧 Equipment Rental</a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/my-rentals">My Rentals</a>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
+        </div>
     </nav>
 
-    <!-- Main Content -->
-    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px">
-      <div class="card">
-        <div class="card-header">
-          <h1>✅ User Dashboard</h1>
-          <p>Rent and manage equipment</p>
-        </div>
-        <div class="card-body">
-          <h2>Welcome, <%= user.full_name %>!</h2>
-          <p>Email: <%= user.email %></p>
-          <p>Role: Regular User</p>
-          <hr style="margin: 20px 0" />
-
-          <div class="row">
-            <div class="col">
-              <div class="stat-card">
-                <h3>🔍</h3>
-                <p>Search & Rent Equipment - Coming Soon</p>
-              </div>
+    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px;">
+        <h1>User Dashboard</h1>
+        <p>Browse and rent equipment for your projects.</p>
+        
+        <!-- Success/Error Messages -->
+        <% if (success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <!-- Rental Limit Warning -->
+        <% if (!canRentMore) { %>
+            <div class="rental-limit-warning">
+                ⚠️ You have reached your rental limit (<%= maxItems %> items). Please return some items before renting more.
             </div>
-            <div class="col">
-              <div class="stat-card">
-                <h3>📋</h3>
-                <p>My Rental History - Coming Soon</p>
-              </div>
+        <% } else if (maxItems - activeCount <= 2) { %>
+            <div class="rental-limit-warning">
+                ℹ️ You can rent <%= maxItems - activeCount %> more item(s). Your limit is <%= maxItems %> items total.
             </div>
-          </div>
-
-          <p style="margin-top: 20px">
-            📌 Equipment rental features coming in Step 5!
-          </p>
+        <% } %>
+        
+        <!-- Active Rentals Section -->
+        <% if (activeRentals.length > 0) { %>
+            <div class="card" style="margin-bottom: 30px;">
+                <div class="card-header">
+                    <h3>📋 Currently Rented (<%= activeRentals.length %> / <%= maxItems %>)</h3>
+                </div>
+                <div class="card-body">
+                    <% activeRentals.forEach(rental => { %>
+                        <div class="rental-item <%= rental.days_remaining <= 2 ? 'due-soon' : '' %> <%= rental.days_remaining < 0 ? 'due-overdue' : '' %>">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                                <div>
+                                    <strong><%= rental.equipment_name %></strong><br>
+                                    <small>Serial: <%= rental.serial_number %> | Quantity: <%= rental.quantity_rented %></small>
+                                </div>
+                                <div>
+                                    <% if (rental.days_remaining < 0) { %>
+                                        <span style="color: #dc3545;">⚠️ Overdue by <%= Math.abs(rental.days_remaining) %> days</span>
+                                    <% } else { %>
+                                        <span>Due in <strong><%= rental.days_remaining %></strong> days</span>
+                                    <% } %>
+                                </div>
+                                <div>
+                                    <form action="/user/return/<%= rental.rental_id %>" method="POST" onsubmit="return confirm('Return this equipment?')">
+                                        <button type="submit" class="btn-sm btn-primary">Return Now</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } %>
+        
+        <!-- Search & Filters -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div class="card-header">
+                <h3>🔍 Search & Filter Equipment</h3>
+            </div>
+            <div class="card-body">
+                <div class="search-filters">
+                    <input type="text" id="searchInput" placeholder="Search by name or serial..." class="form-control">
+                    <select id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <% if (categories && categories.length > 0) { %>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat.category %>"><%= cat.category %></option>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                    <select id="conditionFilter">
+                        <option value="all">All Conditions</option>
+                        <option value="excellent">Excellent</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                    </select>
+                    <button onclick="searchEquipment()" class="btn-primary" style="padding: 10px 20px;">Search</button>
+                </div>
+            </div>
         </div>
-      </div>
+        
+        <!-- Available Equipment Grid -->
+        <h3>📦 Available Equipment</h3>
+        <div id="equipmentGrid" class="row">
+            <% if (availableEquipment.length > 0) { %>
+                <% availableEquipment.forEach(item => { %>
+                    <div class="col">
+                        <div class="equipment-card">
+                            <div class="equipment-card-body">
+                                <h4><%= item.name %></h4>
+                                <p><small>Category: <%= item.category %></small></p>
+                                <p><small>Serial: <%= item.serial_number %></small></p>
+                                <p>
+                                    Condition: 
+                                    <% if (item.condition_status === 'excellent') { %>
+                                        <span style="color: #28a745;">Excellent</span>
+                                    <% } else if (item.condition_status === 'good') { %>
+                                        <span style="color: #17a2b8;">Good</span>
+                                    <% } else { %>
+                                        <span style="color: #ffc107;">Fair</span>
+                                    <% } %>
+                                </p>
+                                <p>
+                                    Available: 
+                                    <strong><%= item.available_quantity %></strong> / <%= item.total_quantity %>
+                                </p>
+                                <% if (item.available_quantity <= 2 && item.available_quantity > 0) { %>
+                                    <span class="badge-low-stock">Low Stock</span>
+                                <% } %>
+                            </div>
+                            <div class="equipment-card-footer">
+                                <% if (canRentMore && item.available_quantity > 0) { %>
+                                    <form action="/user/rent/<%= item.equipment_id %>" method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                        <select name="quantity" class="quantity-select" style="width: 80px; padding: 5px;">
+                                            <% for(let i = 1; i <= Math.min(item.available_quantity, maxItems - activeCount); i++) { %>
+                                                <option value="<%= i %>"><%= i %></option>
+                                            <% } %>
+                                        </select>
+                                        <select name="duration" style="width: 100px; padding: 5px;">
+                                            <option value="3">3 days</option>
+                                            <option value="7" selected>7 days</option>
+                                            <option value="14">14 days</option>
+                                            <option value="30">30 days</option>
+                                        </select>
+                                        <button type="submit" class="btn-primary" style="padding: 5px 15px;">Rent</button>
+                                    </form>
+                                <% } else if (!canRentMore) { %>
+                                    <span style="color: #dc3545;">Rental limit reached</span>
+                                <% } else { %>
+                                    <span style="color: #dc3545;">Out of stock</span>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No equipment available at the moment.</p>
+            <% } %>
+        </div>
+        
+        <!-- Rental History -->
+        <% if (rentalHistory.length > 0) { %>
+            <div class="card" style="margin-top: 30px;">
+                <div class="card-header">
+                    <h3>📜 Recent Rental History</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th>Rented Date</th>
+                                    <th>Returned Date</th>
+                                    <th>Days Used</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% rentalHistory.forEach(rental => { %>
+                                    <tr>
+                                        <td><%= rental.equipment_name %></td>
+                                        <td><%= rental.rental_date %></td>
+                                        <td><%= rental.return_date || 'Not returned' %></td>
+                                        <td><%= rental.days_used || '-' %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        <% } %>
     </main>
 
-    <script src="/js/script.js"></script>
-  </body>
+    <script>
+        async function searchEquipment() {
+            const query = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            const condition = document.getElementById('conditionFilter').value;
+            
+            const response = await fetch(`/user/search?query=${encodeURIComponent(query)}&category=${category}&condition=${condition}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                updateEquipmentGrid(data.equipment);
+            }
+        }
+        
+        function updateEquipmentGrid(equipment) {
+            const grid = document.getElementById('equipmentGrid');
+            const canRentMore = <%= canRentMore %>;
+            const maxItems = <%= maxItems %>;
+            const activeCount = <%= activeCount %>;
+            
+            if (equipment.length === 0) {
+                grid.innerHTML = '<p>No equipment found matching your criteria.</p>';
+                return;
+            }
+            
+            grid.innerHTML = equipment.map(item => `
+                <div class="col">
+                    <div class="equipment-card">
+                        <div class="equipment-card-body">
+                            <h4>${escapeHtml(item.name)}</h4>
+                            <p><small>Category: ${escapeHtml(item.category)}</small></p>
+                            <p><small>Serial: ${escapeHtml(item.serial_number)}</small></p>
+                            <p>Condition: ${getConditionBadge(item.condition_status)}</p>
+                            <p>Available: <strong>${item.available_quantity}</strong> / ${item.total_quantity}</p>
+                            ${item.available_quantity <= 2 && item.available_quantity > 0 ? '<span class="badge-low-stock">Low Stock</span>' : ''}
+                        </div>
+                        <div class="equipment-card-footer">
+                            ${canRentMore && item.available_quantity > 0 ? `
+                                <form action="/user/rent/${item.equipment_id}" method="POST" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                    <select name="quantity" class="quantity-select" style="width: 80px; padding: 5px;">
+                                        ${[...Array(Math.min(item.available_quantity, maxItems - activeCount)).keys()].map(i => `<option value="${i+1}">${i+1}</option>`).join('')}
+                                    </select>
+                                    <select name="duration" style="width: 100px; padding: 5px;">
+                                        <option value="3">3 days</option>
+                                        <option value="7" selected>7 days</option>
+                                        <option value="14">14 days</option>
+                                        <option value="30">30 days</option>
+                                    </select>
+                                    <button type="submit" class="btn-primary" style="padding: 5px 15px;">Rent</button>
+                                </form>
+                            ` : (canRentMore ? '<span style="color: #dc3545;">Out of stock</span>' : '<span style="color: #dc3545;">Rental limit reached</span>')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getConditionBadge(condition) {
+            if (condition === 'excellent') return '<span style="color: #28a745;">Excellent</span>';
+            if (condition === 'good') return '<span style="color: #17a2b8;">Good</span>';
+            return '<span style="color: #ffc107;">Fair</span>';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Search on Enter key
+        document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchEquipment();
+        });
+    </script>
+</body>
 </html>
