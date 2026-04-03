@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; width: 90%; max-width: 500px; border-radius: 20px; max-height: 90%; overflow-y: auto; }
+        .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
+        .modal-body { padding: 20px; }
+        .close-btn { background: #6c757d; margin-top: 10px; }
+        .action-buttons { display: flex; gap: 10px; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+    </style>
+</head>
+<body class="has-navbar">
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">🔧 Equipment Rental</a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/equipment">Equipment</a>
+            <a href="/admin/users">Users</a>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
+        </div>
+    </nav>
+
+    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Equipment Management</h1>
+            <button onclick="showAddModal()" class="btn btn-primary">+ Add New Equipment</button>
+        </div>
+        
+        <% if (success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Serial #</th>
+                                <th>Condition</th>
+                                <th>Total</th>
+                                <th>Available</th>
+                                <th>Added By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (equipment.length > 0) { %>
+                                <% equipment.forEach(item => { %>
+                                    <tr>
+                                        <td><strong><%= item.name %></strong></td>
+                                        <td><%= item.category %></td>
+                                        <td><%= item.serial_number %></td>
+                                        <td>
+                                            <% if (item.condition_status === 'excellent') { %>
+                                                <span style="color: #28a745;">Excellent</span>
+                                            <% } else if (item.condition_status === 'good') { %>
+                                                <span style="color: #17a2b8;">Good</span>
+                                            <% } else if (item.condition_status === 'fair') { %>
+                                                <span style="color: #ffc107;">Fair</span>
+                                            <% } else { %>
+                                                <span style="color: #dc3545;">Poor</span>
+                                            <% } %>
+                                        </td>
+                                        <td><%= item.total_quantity %></td>
+                                        <td><%= item.available_quantity %></td>
+                                        <td><%= item.added_by_name || 'System' %></td>
+                                        <td class="action-buttons">
+                                            <button onclick="showEditModal(<%= item.equipment_id %>)" class="btn-sm btn-primary">Edit</button>
+                                            <a href="/admin/equipment/delete/<%= item.equipment_id %>" onclick="return confirm('Delete this equipment?')" class="btn-sm btn-danger">Delete</a>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" style="text-align: center;">No equipment found. Click "Add New Equipment" to get started.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Add Equipment Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Equipment</h3>
+            </div>
+            <div class="modal-body">
+                <form action="/admin/equipment/add" method="POST">
+                    <div class="form-group">
+                        <label>Equipment Name *</label>
+                        <input type="text" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select name="category" required>
+                            <option value="">Select Category</option>
+                            <% if (categories && categories.length > 0) { %>
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat.category %>"><%= cat.category %></option>
+                                <% }); %>
+                            <% } %>
+                            <option value="Tools">Tools</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Vehicles">Vehicles</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Serial Number *</label>
+                        <input type="text" name="serial_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select name="condition_status">
+                            <option value="excellent">Excellent</option>
+                            <option value="good" selected>Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Quantity</label>
+                        <input type="number" name="total_quantity" value="1" min="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Equipment</button>
+                    <button type="button" class="btn btn-secondary close-btn" onclick="closeAddModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+        
+        function showEditModal(id) {
+            window.location.href = '/admin/equipment/edit/' + id;
+        }
+        
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addModal');
+            if (event.target === addModal) {
+                addModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
