@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="has-navbar">
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">🔧 Equipment Rental</a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/equipment">Equipment</a>
+            <a href="/admin/users">Users</a>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
+        </div>
+    </nav>
+
+    <main style="max-width: 600px; margin: 80px auto 40px; padding: 20px;">
+        <div class="card">
+            <div class="card-header">
+                <h3>Edit Equipment</h3>
+            </div>
+            <div class="card-body">
+                <form action="/admin/equipment/update/<%= equipment.equipment_id %>" method="POST">
+                    <div class="form-group">
+                        <label>Equipment Name *</label>
+                        <input type="text" name="name" value="<%= equipment.name %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select name="category" required>
+                            <option value="Tools" <%= equipment.category === 'Tools' ? 'selected' : '' %>>Tools</option>
+                            <option value="Electronics" <%= equipment.category === 'Electronics' ? 'selected' : '' %>>Electronics</option>
+                            <option value="Furniture" <%= equipment.category === 'Furniture' ? 'selected' : '' %>>Furniture</option>
+                            <option value="Vehicles" <%= equipment.category === 'Vehicles' ? 'selected' : '' %>>Vehicles</option>
+                            <option value="Other" <%= equipment.category === 'Other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Serial Number *</label>
+                        <input type="text" name="serial_number" value="<%= equipment.serial_number %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select name="condition_status">
+                            <option value="excellent" <%= equipment.condition_status === 'excellent' ? 'selected' : '' %>>Excellent</option>
+                            <option value="good" <%= equipment.condition_status === 'good' ? 'selected' : '' %>>Good</option>
+                            <option value="fair" <%= equipment.condition_status === 'fair' ? 'selected' : '' %>>Fair</option>
+                            <option value="poor" <%= equipment.condition_status === 'poor' ? 'selected' : '' %>>Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Quantity</label>
+                        <input type="number" name="total_quantity" value="<%= equipment.total_quantity %>" min="1">
+                        <small>Currently available: <%= equipment.available_quantity %> units</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Equipment</button>
+                    <a href="/admin/equipment" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
