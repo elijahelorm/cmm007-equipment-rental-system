@@ -6,28 +6,6 @@ const router = express.Router();
 const { protect, userOnly } = require("../middleware/auth");
 const { pool } = require("../config/db");
 
-// Function to check and update overdue rentals
-async function checkOverdueRentals(userId) {
-  try {
-    // Update any active rentals where due_date < today to 'overdue' status
-    const [result] = await pool.query(
-      `
-            UPDATE rentals 
-            SET status = 'overdue' 
-            WHERE user_id = ? 
-            AND status = 'active' 
-            AND due_date < CURDATE()
-        `,
-      [userId],
-    );
-
-    return result.affectedRows;
-  } catch (error) {
-    console.error("Error checking overdue rentals:", error);
-    return 0;
-  }
-}
-
 // Apply authentication to ALL user routes
 router.use(protect);
 router.use(userOnly);
