@@ -46,7 +46,7 @@
         <% if (activeRentals.length > 0) { %>
             <div class="card" style="margin-bottom: 30px;">
                 <div class="card-header">
-                    <h3>📋 Currently Rented (<%= activeRentals.length %> / <%= maxItems %>)</h3>
+                    <h3> Currently Rented (<%= activeRentals.length %> / <%= maxItems %>)</h3>
                 </div>
                 <div class="card-body">
                     <% activeRentals.forEach(rental => { %>
@@ -78,7 +78,7 @@
         <!-- Search & Filters -->
         <div class="card" style="margin-bottom: 30px;">
             <div class="card-header">
-                <h3>🔍 Search & Filter Equipment</h3>
+                <h3>Search & Filter Equipment</h3>
             </div>
             <div class="card-body">
                 <div class="search-filters">
@@ -103,7 +103,7 @@
         </div>
         
         <!-- Available Equipment Grid -->
-        <h3>📦 Available Equipment</h3>
+        <h3>Available Equipment</h3>
         <div id="equipmentGrid" class="row">
             <% if (availableEquipment.length > 0) { %>
                 <% availableEquipment.forEach(item => { %>
@@ -165,7 +165,7 @@
         <% if (rentalHistory.length > 0) { %>
             <div class="card" style="margin-top: 30px;">
                 <div class="card-header">
-                    <h3>📜 Recent Rental History</h3>
+                    <h3> Recent Rental History</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-container">
