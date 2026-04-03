@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .status-active { color: #28a745; font-weight: bold; }
+        .status-overdue { color: #dc3545; font-weight: bold; }
+        .status-returned { color: #6c757d; }
+        .rental-row-overdue { background: #fff3cd; }
+    </style>
+</head>
+<body class="has-navbar">
+    <nav class="navbar">
+        <a href="/user/dashboard" class="navbar-brand">🔧 Equipment Rental</a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/my-rentals">My Rentals</a>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
+        </div>
+    </nav>
+
+    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px;">
+        <h1>My Rental History</h1>
+        <p>View all your past and current rentals.</p>
+        
+        <% if (success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Equipment</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Rental Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (rentals.length > 0) { %>
+                                <% rentals.forEach(rental => { %>
+                                    <tr class="<%= rental.current_status === 'overdue' ? 'rental-row-overdue' : '' %>">
+                                        <td><strong><%= rental.equipment_name %></strong><br><small><%= rental.serial_number %></small></td>
+                                        <td><%= rental.category %></td>
+                                        <td><%= rental.quantity_rented %></td>
+                                        <td><%= rental.rental_date %></td>
+                                        <td><%= rental.due_date %></td>
+                                        <td><%= rental.return_date || '-' %></td>
+                                        <td>
+                                            <% if (rental.status === 'active') { %>
+                                                <% if (rental.days_remaining < 0) { %>
+                                                    <span class="status-overdue">Overdue by <%= Math.abs(rental.days_remaining) %> days</span>
+                                                <% } else { %>
+                                                    <span class="status-active">Active (<%= rental.days_remaining %> days left)</span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="status-returned">Returned</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (rental.status === 'active') { %>
+                                                <form action="/user/return/<%= rental.rental_id %>" method="POST" onsubmit="return confirm('Return this equipment?')">
+                                                    <button type="submit" class="btn-sm btn-primary">Return</button>
+                                                </form>
+                                            <% } else { %>
+                                                -
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" style="text-align: center;">No rental history found.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <a href="/user/dashboard" class="btn-secondary" style="padding: 10px 20px;">← Back to Dashboard</a>
+        </div>
+    </main>
+</body>
+</html>

@@ -608,5 +608,17 @@ tr:hover {
   }
 }
 
+/* Form control for search input */
+.form-control {
+  width: 100%;
+  padding: 10px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  transition: all 0.3s;
+}
 
-  
+.form-control:focus {
+  outline: none;
+  border-color: #667eea;
+}
