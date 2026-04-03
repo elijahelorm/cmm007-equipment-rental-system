@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Equipment Rental</title>
+    <title><%= title %> | Equipment Rental</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="has-navbar">
@@ -17,39 +17,115 @@
             <a href="/admin/dashboard">Dashboard</a>
             <a href="/admin/equipment">Equipment</a>
             <a href="/admin/users">Users</a>
-            <a href="/logout" style="background: #dc3545; padding: 8px 16px; border-radius: 8px; color: white;">Logout</a>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px;">
-        <div class="card">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome back, <%= user.full_name %>!</p>
+        
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col">
+                <div class="stat-card">
+                    <h3><%= stats.equipment.total_equipment || 0 %></h3>
+                    <p>Total Equipment Items</p>
+                    <small><%= stats.equipment.available_units || 0 %> units available</small>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <h3><%= stats.users.total_users || 0 %></h3>
+                    <p>Total Users</p>
+                    <small><%= stats.users.admins || 0 %> Admins | <%= stats.users.regular_users || 0 %> Users</small>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <h3><%= stats.rentals.active_rentals || 0 %></h3>
+                    <p>Active Rentals</p>
+                    <small><%= stats.rentals.overdue_rentals || 0 %> overdue</small>
+                </div>
+            </div>
+            <div class="col">
+                <div class="stat-card">
+                    <h3><%= stats.rentals.completed_rentals || 0 %></h3>
+                    <p>Completed Rentals</p>
+                    <small>Total: <%= stats.rentals.total_rentals || 0 %></small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Rentals Table -->
+        <div class="card" style="margin-top: 30px;">
             <div class="card-header">
-                <h1>✅ Admin Dashboard</h1>
-                <p>Welcome to the Equipment Rental System</p>
+                <h3>Recent Rentals</h3>
             </div>
             <div class="card-body">
-                <h2>Welcome, <%= user.full_name %>!</h2>
-                <p>Email: <%= user.email %></p>
-                <p>Role: Administrator</p>
-                <hr style="margin: 20px 0;">
-                
-                <div class="row">
-                    <div class="col">
-                        <div class="stat-card">
-                            <h3>📦</h3>
-                            <p>Equipment Management - Coming Soon</p>
-                        </div>
+                <% if (recentRentals.length > 0) { %>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Equipment</th>
+                                    <th>Rental Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentRentals.forEach(rental => { %>
+                                    <tr>
+                                        <td><%= rental.user_name %></td>
+                                        <td><%= rental.equipment_name %></td>
+                                        <td><%= rental.rental_date %></td>
+                                        <td><%= rental.due_date %></td>
+                                        <td>
+                                            <% if (rental.status === 'active') { %>
+                                                <span style="color: #28a745;">Active</span>
+                                            <% } else if (rental.status === 'overdue') { %>
+                                                <span style="color: #dc3545;">Overdue</span>
+                                            <% } else { %>
+                                                <span style="color: #6c757d;">Returned</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="col">
-                        <div class="stat-card">
-                            <h3>👥</h3>
-                            <p>User Management - Coming Soon</p>
-                        </div>
+                <% } else { %>
+                    <p>No rentals yet.</p>
+                <% } %>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="row" style="margin-top: 30px;">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h3> Equipment Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Add, edit, or remove equipment from inventory.</p>
+                        <a href="/admin/equipment" class="btn btn-primary">Manage Equipment →</a>
                     </div>
                 </div>
-                
-                <p style="margin-top: 20px;">📌 Full admin features (Equipment & User Management) coming in Step 4!</p>
+            </div>
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>User Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Manage user accounts and permissions.</p>
+                        <a href="/admin/users" class="btn btn-primary">Manage Users →</a>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
