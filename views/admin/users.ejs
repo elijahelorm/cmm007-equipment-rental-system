@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Equipment Rental</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; width: 90%; max-width: 450px; border-radius: 20px; }
+        .modal-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
+        .modal-body { padding: 20px; }
+        .role-select { width: auto; display: inline-block; padding: 5px; }
+    </style>
+</head>
+<body class="has-navbar">
+    <nav class="navbar">
+        <a href="/admin/dashboard" class="navbar-brand">🔧 Equipment Rental</a>
+        <div class="navbar-menu">
+            <span>Welcome, <%= user.full_name %>!</span>
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/equipment">Equipment</a>
+            <a href="/admin/users">Users</a>
+            <a href="/logout" class="btn-danger" style="padding: 8px 16px; border-radius: 8px;">Logout</a>
+        </div>
+    </nav>
+
+    <main style="max-width: 1200px; margin: 80px auto 40px; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>User Management</h1>
+            <button onclick="showAddModal()" class="btn btn-primary">+ Add New User</button>
+        </div>
+        
+        <% if (success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <div class="card">
+            <div class="card-body">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Total Rentals</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (users.length > 0) { %>
+                                <% users.forEach(u => { %>
+                                    <tr>
+                                        <td><strong><%= u.full_name %></strong></td>
+                                        <td><%= u.email %></td>
+                                        <td>
+                                            <form action="/admin/users/role/<%= u.user_id %>" method="POST" style="display: inline;">
+                                                <select name="role" onchange="this.form.submit()" class="role-select" <%= u.user_id == user.user_id ? 'disabled' : '' %>>
+                                                    <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>User</option>
+                                                    <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                        <td><%= u.total_rentals || 0 %></td>
+                                        <td><%= new Date(u.created_at).toLocaleDateString() %></td>
+                                        <td>
+                                            <% if (u.user_id != user.user_id) { %>
+                                                <a href="/admin/users/delete/<%= u.user_id %>" onclick="return confirm('Delete this user? All their rentals will be deleted.')" class="btn-sm btn-danger">Delete</a>
+                                            <% } else { %>
+                                                <span style="color: #999;">Current</span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" style="text-align: center;">No users found.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Add User Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+            </div>
+            <div class="modal-body">
+                <form action="/admin/users/add" method="POST">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" name="full_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" name="password" required placeholder="Min 6 characters">
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select name="role">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                    <button type="button" class="btn btn-secondary close-btn" onclick="closeAddModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+        }
+        
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addModal');
+            if (event.target === addModal) {
+                addModal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
