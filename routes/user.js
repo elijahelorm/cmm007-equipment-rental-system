@@ -62,7 +62,7 @@ router.get("/dashboard", async (req, res) => {
     const [limit] = await pool.query(
       'SELECT max_items FROM rental_limits WHERE role = "user"',
     );
-    const maxItems = limit[0]?.max_items || 5;
+    const maxItems = parseInt(limit[0]?.max_items) || 5;
 
     // Get current rental count
     const activeCount = activeRentals.length;
@@ -139,19 +139,23 @@ router.get("/search", async (req, res) => {
 });
 
 // RENT EQUIPMENT
+// RENT EQUIPMENT - DEBUG VERSION (shows what's happening)
 router.post("/rent/:id", async (req, res) => {
   const connection = await pool.getConnection();
 
   try {
     const equipmentId = req.params.id;
     const { duration, quantity } = req.body;
-    const rentalDuration = parseInt(duration) || 7; // Default 7 days
+    const rentalDuration = parseInt(duration) || 7;
     const rentalQuantity = parseInt(quantity) || 1;
 
-    // Start transaction
+    console.log("===== RENT DEBUG =====");
+    console.log("User ID:", req.user.user_id);
+    console.log("Rental Quantity:", rentalQuantity);
+
     await connection.beginTransaction();
 
-    // Check if equipment exists and has enough quantity
+    // Check if equipment exists
     const [equipment] = await connection.query(
       "SELECT * FROM equipment WHERE equipment_id = ?",
       [equipmentId],
@@ -163,7 +167,10 @@ router.post("/rent/:id", async (req, res) => {
     }
 
     const item = equipment[0];
+    console.log("Equipment:", item.name);
+    console.log("Available quantity:", item.available_quantity);
 
+    // Check available quantity
     if (item.available_quantity < rentalQuantity) {
       await connection.rollback();
       return res.redirect(
@@ -171,39 +178,52 @@ router.post("/rent/:id", async (req, res) => {
       );
     }
 
-    // Check user's rental limit
+    // Get current total rented items
     const [activeRentals] = await connection.query(
       'SELECT SUM(quantity_rented) as total FROM rentals WHERE user_id = ? AND status = "active"',
       [req.user.user_id],
     );
 
+    console.log("Active rentals query result:", activeRentals);
+
     const [limit] = await connection.query(
       'SELECT max_items FROM rental_limits WHERE role = "user"',
     );
-    const maxItems = limit[0]?.max_items || 5;
-    const currentRentals = activeRentals[0].total || 0;
+    const maxItems = parseInt(limit[0]?.max_items) || 5; 
+    const currentTotalItems = parseInt(activeRentals[0]?.total) || 0; 
 
-    if (currentRentals + rentalQuantity > maxItems) {
+    console.log("Current total items rented:", currentTotalItems);
+    console.log("Max items allowed:", maxItems);
+    console.log("New total if rented:", currentTotalItems + rentalQuantity);
+    console.log(
+      "Will this exceed limit?",
+      currentTotalItems + rentalQuantity > maxItems,
+    );
+
+    // ONLY BLOCK if EXCEEDING the limit
+    if (currentTotalItems + rentalQuantity > maxItems) {
       await connection.rollback();
+      const canRent = maxItems - currentTotalItems;
+      console.log("BLOCKING - cannot rent!");
       return res.redirect(
-        `/user/dashboard?error=You cannot rent more than ${maxItems} items at once`,
+        `/user/dashboard?error=Limit reached! You have ${currentTotalItems} of ${maxItems} items. You can only rent ${canRent} more.`,
       );
     }
 
-    // Calculate dates
+    console.log("ALLOWING - proceeding with rental...");
+
+    // IF WE GET HERE - RENTAL IS ALLOWED
     const rentalDate = new Date();
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + rentalDuration);
 
-    // Format dates for MySQL (YYYY-MM-DD)
     const formattedRentalDate = rentalDate.toISOString().split("T")[0];
     const formattedDueDate = dueDate.toISOString().split("T")[0];
 
-    // Create rental record
-    const [rental] = await connection.query(
+    await connection.query(
       `INSERT INTO rentals 
-             (user_id, equipment_id, quantity_rented, rental_date, due_date, status) 
-             VALUES (?, ?, ?, ?, ?, 'active')`,
+       (user_id, equipment_id, quantity_rented, rental_date, due_date, status) 
+       VALUES (?, ?, ?, ?, ?, 'active')`,
       [
         req.user.user_id,
         equipmentId,
@@ -213,29 +233,16 @@ router.post("/rent/:id", async (req, res) => {
       ],
     );
 
-    // Update equipment available quantity
     await connection.query(
       "UPDATE equipment SET available_quantity = available_quantity - ? WHERE equipment_id = ?",
       [rentalQuantity, equipmentId],
     );
 
-    // Log to rental history
-    await connection.query(
-      `INSERT INTO rental_history (rental_id, user_id, equipment_id, action, notes)
-             VALUES (?, ?, ?, 'rented', ?)`,
-      [
-        rental.insertId,
-        req.user.user_id,
-        equipmentId,
-        `Rented ${rentalQuantity} item(s) for ${rentalDuration} days`,
-      ],
-    );
-
     await connection.commit();
 
+    console.log("RENTAL SUCCESSFUL!");
     res.redirect(
-      "/user/dashboard?success=Equipment rented successfully! Due date: " +
-        formattedDueDate,
+      "/user/dashboard?success=Rented successfully! Due: " + formattedDueDate,
     );
   } catch (error) {
     await connection.rollback();
