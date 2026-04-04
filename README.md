@@ -66,8 +66,8 @@ This system allows businesses to manage their equipment inventory efficiently. A
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/equipment-rental-system.git
-cd equipment-rental-system
+git clone https://github.com/elijahelorm/cmm007-equipment-rental-system.git
+cd cmm007-equipment-rental-system
 ```
 
 2. Install dependencies
