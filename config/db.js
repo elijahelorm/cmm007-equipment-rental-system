@@ -1,9 +1,9 @@
 // This file controls the connection between Node.js and MySQL
-
 const mysql = require('mysql2');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
+// socket path for XAMPP - MacOS
 // Create a connection pool
 // A pool maintains multiple database connections for efficiency
 const pool = mysql.createPool({

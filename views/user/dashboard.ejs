@@ -31,24 +31,11 @@
             <div class="alert alert-error"><%= error %></div>
         <% } %>
         
-        <!-- Rental Limit Warning -->
-        <% if (!canRentMore) { %>
-            <div class="rental-limit-warning">
-                ⚠️ You have reached your rental limit (<%= maxItems %> items). Please return some items before renting more.
-            </div>
-        <% } else if (maxItems - activeCount <= 2) { %>
-            
-            <!-- disabled limit check warning -->
-            <!-- <div class="rental-limit-warning">
-                ℹ️ You can rent <%= maxItems - activeCount %> more item(s). Your limit is <%= maxItems %> items total.
-            </div> -->
-        <% } %>
-        
         <!-- Active Rentals Section -->
         <% if (activeRentals.length > 0) { %>
             <div class="card" style="margin-bottom: 30px;">
                 <div class="card-header">
-                    <h3> Currently Rented</h3>
+                    <h3> Currently Rented </h3>
                 </div>
                 <div class="card-body">
                     <% activeRentals.forEach(rental => { %>
