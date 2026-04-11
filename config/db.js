@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 // socket path for XAMPP
+// Create a connection pool
+// A pool maintains multiple database connections for efficiency
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
@@ -16,8 +18,10 @@ const pool = mysql.createPool({
   queueLimit: 0,
 });
 
+// Convert to Promise-based (so we can use async/await)
 const promisePool = pool.promise();
 
+// Function to initialize database (test connection + setup admin)
 const initDatabase = async () => {
   try {
     const [result] = await promisePool.query("SELECT 1");
@@ -51,4 +55,5 @@ const initDatabase = async () => {
   }
 };
 
+// Export so other files can use the connection
 module.exports = { pool: promisePool, initDatabase };
